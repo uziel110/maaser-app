@@ -139,8 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ]),
               Row(children: [
                 IconButton(icon: const Icon(Icons.chevron_left), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, -1)), tooltip: 'קודם'),
-                IconButton(icon: const Icon(Icons.keyboard_double_arrow_left), onPressed: period == Period.all ? null : () => setState(() => ref = DateTime.now()), tooltip: 'החודש הנוכחי'),
                 Expanded(child: Text(periodLabel(s), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w500))),
+                IconButton(icon: const Icon(Icons.keyboard_double_arrow_left), onPressed: period == Period.all ? null : () => setState(() => ref = DateTime.now()), tooltip: 'החודש הנוכחי'),
                 IconButton(icon: const Icon(Icons.chevron_right), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, 1)), tooltip: 'הבא'),
               ]),
             ])),
