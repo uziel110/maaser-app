@@ -32,11 +32,7 @@ class CloudBackupService {
   static GoogleSignInAccount? get currentUser => _googleSignIn.currentUser;
 
   static Future<GoogleSignInAccount?> signIn() async {
-    try {
-      return await _googleSignIn.signIn();
-    } catch (e) {
-      return null;
-    }
+    return await _googleSignIn.signIn();
   }
 
   static Future<void> signOut() async {

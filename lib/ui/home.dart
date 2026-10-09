@@ -24,6 +24,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isChartLine = false;
 
+  bool get isCurrentPeriod {
+    final now = DateTime.now();
+    switch (period) {
+      case Period.day: return ref.year == now.year && ref.month == now.month && ref.day == now.day;
+      case Period.week:
+      case Period.month: return ref.year == now.year && ref.month == now.month;
+      case Period.year: return ref.year == now.year;
+      case Period.all: return true;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -137,12 +148,35 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: p == period ? Colors.black : Colors.black54)),
                   ),
               ]),
-              Row(children: [
-                IconButton(icon: const Icon(Icons.chevron_left), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, -1)), tooltip: 'קודם'),
-                Expanded(child: Text(periodLabel(s), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w500))),
-                IconButton(icon: const Icon(Icons.keyboard_double_arrow_left), onPressed: period == Period.all ? null : () => setState(() => ref = DateTime.now()), tooltip: 'החודש הנוכחי'),
-                IconButton(icon: const Icon(Icons.chevron_right), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, 1)), tooltip: 'הבא'),
-              ]),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Text(periodLabel(s), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left),
+                          onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, -1)),
+                          tooltip: 'קודם',
+                        ),
+                        if (!isCurrentPeriod)
+                          IconButton(
+                            icon: const Icon(Icons.keyboard_double_arrow_left),
+                            onPressed: period == Period.all ? null : () => setState(() => ref = DateTime.now()),
+                            tooltip: 'החודש הנוכחי',
+                          ),
+                      ]),
+                      IconButton(
+                        icon: const Icon(Icons.chevron_right),
+                        onPressed: (period == Period.all || isCurrentPeriod) ? null : () => setState(() => ref = s.shift(period, ref, 1)),
+                        tooltip: 'הבא',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ])),
           ),
           Card(
