@@ -22,15 +22,18 @@ class _HomeScreenState extends State<HomeScreen> {
   bool listMode = false;
   String? catFilter;
   final ScrollController _scrollController = ScrollController();
-  double _scrollOffset = 0.0;
+  bool _isChartLine = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      setState(() {
-        _scrollOffset = _scrollController.offset;
-      });
+      final offset = _scrollController.offset;
+      if (offset > 40 && !_isChartLine) {
+        setState(() => _isChartLine = true);
+      } else if (offset <= 5 && _isChartLine) {
+        setState(() => _isChartLine = false);
+      }
     });
   }
 
@@ -145,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             child: Padding(padding: const EdgeInsets.all(8), child: Column(children: [
-              _scrollOffset > 30
+              _isChartLine
                   ? Row(children: [
                       Text(fmt(total), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: tab == tabIncome ? const Color(0xFF2E8B57) : const Color(0xFFD8433A))),
                       const SizedBox(width: 8),
