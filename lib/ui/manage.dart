@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../backup.dart';
+import '../cloud_backup.dart';
 import '../models.dart';
 import '../store.dart';
 import 'widgets.dart';
@@ -261,17 +262,93 @@ class RecurringScreen extends StatelessWidget {
 }
 
 // ---------- גיבוי ----------
-class BackupScreen extends StatelessWidget {
+class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
+  @override
+  State<BackupScreen> createState() => _BackupScreenState();
+}
+
+class _BackupScreenState extends State<BackupScreen> {
+  bool loading = false;
+
   @override
   Widget build(BuildContext context) {
     final s = context.read<Store>();
+    final user = CloudBackupService.currentUser;
     return Scaffold(
       appBar: AppBar(title: const Text('גיבוי ושחזור')),
       body: ListView(padding: const EdgeInsets.all(12), children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Text('גיבוי ענן (Google Drive)', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1F4E5A))),
+        ),
         ListTile(
-          leading: const Icon(Icons.save_alt), title: const Text('יצירת גיבוי'),
-          subtitle: const Text('שומר עותק מלא של הנתונים לקובץ. כדאי לשמור אותו במקום בטוח.'),
+          leading: const Icon(Icons.cloud_sync),
+          title: Text(user == null ? 'התחברות לחשבון Google' : 'מחובר: ${user.email}'),
+          subtitle: Text(user == null ? 'גיבוי ושחזור מהענן האישי שלך' : 'לחץ לניתוק או גיבוי'),
+          trailing: FilledButton(
+            onPressed: loading ? null : () async {
+              setState(() => loading = true);
+              try {
+                if (user == null) {
+                  final u = await CloudBackupService.signIn();
+                  if (u != null && context.mounted) toast(context, 'התחברת בהצלחה');
+                } else {
+                  await CloudBackupService.signOut();
+                  if (context.mounted) toast(context, 'התנתקת מחשבון Google');
+                }
+              } catch (e) {
+                if (context.mounted) toast(context, 'שגיאה: $e');
+              } finally {
+                setState(() => loading = false);
+              }
+            },
+            child: Text(user == null ? 'התחבר' : 'התנתק'),
+          ),
+        ),
+        if (user != null) ...[
+          ListTile(
+            leading: const Icon(Icons.cloud_upload),
+            title: const Text('גיבוי כעת לענן'),
+            subtitle: const Text('שמירת עותק עדכני ב-Google Drive האישי'),
+            onTap: loading ? null : () async {
+              setState(() => loading = true);
+              try {
+                final ok = await CloudBackupService.uploadBackup(s);
+                if (context.mounted) toast(context, ok ? 'הגיבוי הועלה לענן בהצלחה' : 'הגיבוי נכשל');
+              } catch (e) {
+                if (context.mounted) toast(context, 'שגיאה: $e');
+              } finally {
+                setState(() => loading = false);
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.cloud_download),
+            title: const Text('שחזור מהענן'),
+            subtitle: const Text('שחזור הנתונים מהגיבוי השמור בענן'),
+            onTap: loading ? null : () async {
+              if (!await confirm(context, 'השחזור מהענן יחליף את כל הנתונים הנוכחיים. להמשיך?')) return;
+              setState(() => loading = true);
+              try {
+                await CloudBackupService.downloadAndRestoreBackup(s);
+                if (context.mounted) toast(context, 'הנתונים שוחזרו בהצלחה מהענן');
+              } catch (e) {
+                if (context.mounted) toast(context, '$e');
+              } finally {
+                setState(() => loading = false);
+              }
+            },
+          ),
+        ],
+        const Divider(),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Text('גיבוי מקומי', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1F4E5A))),
+        ),
+        ListTile(
+          leading: const Icon(Icons.save_alt), title: const Text('יצירת גיבוי לקובץ'),
+          subtitle: const Text('שומר עותק מלא של הנתונים לקובץ במכשיר.'),
           onTap: () async {
             try {
               final bytes = await createBackup(s);
@@ -283,8 +360,8 @@ class BackupScreen extends StatelessWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.restore), title: const Text('שחזור מגיבוי'),
-          subtitle: const Text('הנתונים הנוכחיים יוחלפו בתוכן הגיבוי.'),
+          leading: const Icon(Icons.restore), title: const Text('שחזור מקובץ מקומי'),
+          subtitle: const Text('הנתונים הנוכחיים יוחלפו בתוכן הקובץ.'),
           onTap: () async {
             final r = await FilePicker.platform.pickFiles(withData: true);
             final b = r?.files.single.bytes;
@@ -301,7 +378,7 @@ class BackupScreen extends StatelessWidget {
         const Divider(),
         ListTile(
           leading: const Icon(Icons.upload_file), title: const Text('ייבוא מאפליקציית ה־HTML'),
-          subtitle: const Text('טעינת maaser-data.json או גיבוי JSON מהגרסה הקודמת. מחליף את הנתונים.'),
+          subtitle: const Text('טעינת maaser-data.json או גיבוי JSON מהגרסה הקודמת.'),
           onTap: () async {
             final r = await FilePicker.platform.pickFiles(withData: true);
             final b = r?.files.single.bytes;
