@@ -21,6 +21,24 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime ref = DateTime.now();
   bool listMode = false;
   String? catFilter;
+  final ScrollController _scrollController = ScrollController();
+  double _scrollOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      setState(() {
+        _scrollOffset = _scrollController.offset;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   String periodLabel(Store s) {
     final (a, b) = s.range(period, ref);
@@ -103,9 +121,9 @@ class _HomeScreenState extends State<HomeScreen> {
           if (v.abs() < 250) return;
           setState(() => ref = s.shift(period, ref, v > 0 ? 1 : -1));
         },
-        child: ListView(padding: const EdgeInsets.only(bottom: 90), children: [
+        child: Column(children: [
           Card(
-            margin: const EdgeInsets.all(12),
+            margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             child: Padding(padding: const EdgeInsets.all(8), child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -121,38 +139,75 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(child: Text(periodLabel(s), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w500))),
                 IconButton(icon: const Icon(Icons.chevron_right), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, 1))),
               ]),
-              Donut(
-                slices: [for (final e in sorted) DonutSlice(e.value.$1.toDouble(), Color(s.cat(e.key)?.color ?? 0xFF999999))],
-                center: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text(tab == tabIncome ? 'סה״כ הכנסות' : 'נתרם', style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                  Text(fmt(total), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,
-                      color: tab == tabIncome ? const Color(0xFF2E8B57) : const Color(0xFFD8433A))),
-                  Text('${items.length} פעולות', style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                ]),
-              ),
+            ])),
+          ),
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            child: Padding(padding: const EdgeInsets.all(8), child: Column(children: [
+              _scrollOffset > 30
+                  ? Row(children: [
+                      Text(fmt(total), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: tab == tabIncome ? const Color(0xFF2E8B57) : const Color(0xFFD8433A))),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: SizedBox(
+                            height: 10,
+                            child: Row(children: [
+                              for (final e in sorted)
+                                if (total > 0 && e.value.$1 > 0)
+                                  Expanded(
+                                    flex: e.value.$1,
+                                    child: Container(color: Color(s.cat(e.key)?.color ?? 0xFF999999)),
+                                  ),
+                            ]),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('${items.length} פעולות', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                    ])
+                  : Donut(
+                      slices: [for (final e in sorted) DonutSlice(e.value.$1.toDouble(), Color(s.cat(e.key)?.color ?? 0xFF999999))],
+                      center: Column(mainAxisSize: MainAxisSize.min, children: [
+                        Text(tab == tabIncome ? 'סה״כ הכנסות' : 'נתרם', style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                        Text(fmt(total), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,
+                            color: tab == tabIncome ? const Color(0xFF2E8B57) : const Color(0xFFD8433A))),
+                        Text('${items.length} פעולות', style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                      ]),
+                    ),
               const Divider(),
               _SummaryRow(store: s, tab: tab, inRange: inRange),
             ])),
           ),
-          if (!listMode)
-            for (final e in sorted)
-              Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                child: ListTile(
-                  leading: CatIcon(s.cat(e.key)),
-                  title: Row(children: [
-                    Flexible(child: Text(s.cat(e.key)?.title ?? 'ללא קטגוריה')),
-                    if (s.cat(e.key)?.full == true) const _Badge('100% למעשר'),
-                  ]),
-                  subtitle: Text('${(e.value.$1 * 100 / (total == 0 ? 1 : total)).round()}% · ${e.value.$2} פעולות'),
-                  trailing: Text(fmt(e.value.$1), style: const TextStyle(fontWeight: FontWeight.w600)),
-                  onTap: () => setState(() { listMode = true; catFilter = e.key; }),
-                ),
-              )
-          else
-            ..._txList(context, s, inRange),
-          if (items.isEmpty && !listMode)
-            const Padding(padding: EdgeInsets.all(24), child: Center(child: Text('אין פעולות בתקופה הזו.'))),
+          Expanded(
+            child: ListView(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(bottom: 90),
+              children: [
+                if (!listMode)
+                  for (final e in sorted)
+                    Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      child: ListTile(
+                        leading: CatIcon(s.cat(e.key)),
+                        title: Row(children: [
+                          Flexible(child: Text(s.cat(e.key)?.title ?? 'ללא קטגוריה')),
+                          if (s.cat(e.key)?.full == true) const _Badge('100% למעשר'),
+                        ]),
+                        subtitle: Text('${(e.value.$1 * 100 / (total == 0 ? 1 : total)).round()}% · ${e.value.$2} פעולות'),
+                        trailing: Text(fmt(e.value.$1), style: const TextStyle(fontWeight: FontWeight.w600)),
+                        onTap: () => setState(() { listMode = true; catFilter = e.key; }),
+                      ),
+                    )
+                else
+                  ..._txList(context, s, inRange),
+                if (items.isEmpty && !listMode)
+                  const Padding(padding: EdgeInsets.all(24), child: Center(child: Text('אין פעולות בתקופה הזו.'))),
+              ],
+            ),
+          ),
         ]),
       ),
     );
