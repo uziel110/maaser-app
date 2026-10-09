@@ -376,21 +376,6 @@ class _BackupScreenState extends State<BackupScreen> {
           },
         ),
         const Divider(),
-        ListTile(
-          leading: const Icon(Icons.upload_file), title: const Text('ייבוא מאפליקציית ה־HTML'),
-          subtitle: const Text('טעינת maaser-data.json או גיבוי JSON מהגרסה הקודמת.'),
-          onTap: () async {
-            final r = await FilePicker.platform.pickFiles(withData: true);
-            final b = r?.files.single.bytes;
-            if (b == null || !context.mounted) return;
-            if (!await confirm(context, 'הייבוא יחליף את כל הנתונים הנוכחיים. להמשיך?')) return;
-            try {
-              final n = await s.importHtmlJson(utf8.decode(b));
-              if (context.mounted) toast(context, 'נטענו $n פעולות');
-            } catch (e) {
-              if (context.mounted) toast(context, 'הקובץ לא נטען: $e');
-            }
-          },
         ),
       ]),
     );
