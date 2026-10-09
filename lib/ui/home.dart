@@ -155,24 +155,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      IconButton(
+                        icon: const Icon(Icons.chevron_left),
+                        onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, -1)),
+                        tooltip: 'קודם',
+                      ),
                       Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left),
-                          onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, -1)),
-                          tooltip: 'קודם',
-                        ),
                         if (!isCurrentPeriod)
                           IconButton(
                             icon: const Icon(Icons.keyboard_double_arrow_left),
                             onPressed: period == Period.all ? null : () => setState(() => ref = DateTime.now()),
                             tooltip: 'החודש הנוכחי',
                           ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right),
+                          onPressed: (period == Period.all || isCurrentPeriod) ? null : () => setState(() => ref = s.shift(period, ref, 1)),
+                          tooltip: 'הבא',
+                        ),
                       ]),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: (period == Period.all || isCurrentPeriod) ? null : () => setState(() => ref = s.shift(period, ref, 1)),
-                        tooltip: 'הבא',
-                      ),
                     ],
                   ),
                 ],
