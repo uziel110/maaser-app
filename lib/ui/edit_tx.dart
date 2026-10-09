@@ -139,8 +139,10 @@ class _EditTxScreenState extends State<EditTxScreen> {
         ),
         if (type == typeIncome && kind != modeFull)
           Wrap(spacing: 8, children: [
-            ChoiceChip(label: Text('אוטומטית: ${st.maaserPct.toStringAsFixed(0)}% מעשר + ${st.chomeshPct.toStringAsFixed(0)}% חומש'),
-                selected: mode == modeAuto, onSelected: (_) => setState(() => mode = modeAuto)),
+            ChoiceChip(label: const Text('רק מעשר (10%)'),
+                selected: mode == modeMaaserOnly, onSelected: (_) => setState(() => mode = modeMaaserOnly)),
+            ChoiceChip(label: const Text('מעשר וחומש (10% + 10%)'),
+                selected: mode == modeMaaserChomesh || mode == modeAuto, onSelected: (_) => setState(() => mode = modeMaaserChomesh)),
             ChoiceChip(label: const Text('הזנה ידנית'), selected: mode == modeManual, onSelected: (_) => setState(() => mode = modeManual)),
           ]),
         const _H('קטגוריה'),

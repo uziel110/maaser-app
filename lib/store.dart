@@ -113,8 +113,11 @@ class Store extends ChangeNotifier {
     }
     if (raw <= 0 || m == null) return [];
     if (kind == modeFull) return [Split(m.uid, raw)];
-    final out = <Split>[Split(m.uid, (raw * maaserPct / 100).round())];
-    if (c != null) out.add(Split(c.uid, (raw * chomeshPct / 100).round()));
+    if (kind == modeMaaserOnly) {
+      return [Split(m.uid, (raw * 10 / 100).round())];
+    }
+    final out = <Split>[Split(m.uid, (raw * 10 / 100).round())];
+    if (c != null) out.add(Split(c.uid, (raw * 10 / 100).round()));
     return out.where((s) => s.amount > 0).toList();
   }
 

@@ -37,8 +37,6 @@ class MainDrawer extends StatelessWidget {
         ]),
       ),
       ListTile(leading: const Icon(Icons.account_balance_wallet), title: const Text('קופות ויתרות פתיחה'), onTap: () => go(const FundsScreen())),
-      ListTile(leading: const Icon(Icons.percent), title: const Text('חלוקת הכנסות'),
-          subtitle: Text('מעשר ${s.maaserPct.toStringAsFixed(0)}% + חומש ${s.chomeshPct.toStringAsFixed(0)}%'), onTap: () => go(const PercentScreen())),
       ListTile(leading: const Icon(Icons.category), title: const Text('קטגוריות הכנסות'), onTap: () => go(const CategoriesScreen(type: typeIncome))),
       ListTile(leading: const Icon(Icons.category_outlined), title: const Text('קטגוריות תרומות'), onTap: () => go(const CategoriesScreen(type: typeExpense))),
       ListTile(leading: const Icon(Icons.repeat), title: const Text('תשלומים קבועים'),

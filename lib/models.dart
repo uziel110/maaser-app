@@ -8,7 +8,9 @@ const typeIncome = 'Income';
 const typeExpense = 'Expense';
 
 /// אופן חישוב הכנסה
-const modeAuto = 'auto'; // הכנסה מלאה -> אחוזים למעשר ולחומש
+const modeAuto = 'auto';
+const modeMaaserOnly = 'maaser_only';
+const modeMaaserChomesh = 'maaser_chomesh';
 const modeManual = 'manual'; // סכומים ידניים לכל קופה
 const modeFull = 'full'; // קופת צדקה: 100% למעשר
 
