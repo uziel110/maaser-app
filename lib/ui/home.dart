@@ -117,9 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
               ]),
               Row(children: [
-                IconButton(icon: const Icon(Icons.chevron_right), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, 1))),
-                Expanded(child: Text(periodLabel(s), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w500))),
                 IconButton(icon: const Icon(Icons.chevron_left), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, -1))),
+                Expanded(child: Text(periodLabel(s), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w500))),
+                IconButton(icon: const Icon(Icons.chevron_right), onPressed: period == Period.all ? null : () => setState(() => ref = s.shift(period, ref, 1))),
               ]),
               Donut(
                 slices: [for (final e in sorted) DonutSlice(e.value.$1.toDouble(), Color(s.cat(e.key)?.color ?? 0xFF999999))],

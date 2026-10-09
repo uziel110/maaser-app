@@ -7,7 +7,8 @@ plugins {
 
 android {
     namespace = "com.maaser.maaser_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
+    buildToolsVersion = "34.0.0"
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -17,6 +18,15 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("C:/Users/Uziel Shemesh/.android/debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
     }
 
     defaultConfig {
@@ -31,6 +41,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
@@ -46,7 +59,7 @@ android {
             enable true
             reset()
             include "armeabi-v7a", "arm64-v8a", "x86_64"
-            universalApk false
+            universalApk true
         }
     }
 }
