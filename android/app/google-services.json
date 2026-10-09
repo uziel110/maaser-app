@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "225136279300",
+    "project_id": "gen-lang-client-0139388750",
+    "storage_bucket": "gen-lang-client-0139388750.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225136279300:android:fed1235bb40428d5f7da51",
+        "android_client_info": {
+          "package_name": "com.maaser.maaser_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-Wfy5sj1SaR4nhbK3G-P0e88wQjjVTaA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
