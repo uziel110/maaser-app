@@ -70,7 +70,7 @@ class CloudBackupService {
     );
 
     final media = drive.Media(Stream.value(bytes), bytes.length);
-    final driveFile = drive.DriveFile()
+    final driveFile = drive.File()
       ..name = backupFileName
       ..parents = ['appDataFolder'];
 
